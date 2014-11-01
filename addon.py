@@ -35,8 +35,6 @@ CLIP_THUMB_SIZE_RE = re.compile("/\d{3,}x\d{3,}/")
 CLIP_THUMB_WIDTH = 640
 CLIP_THUMB_HEIGHT = 360
 
-CLIP_PID_RE = re.compile("/(\w+)#")
-
 CLIP_PLAYLIST_XML_FMT = CLIP_HOST + "/iplayer/playlist/{0}"
 CLIP_XML_FMT = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/{0}"
 
@@ -73,9 +71,9 @@ def clip_item(pid, title, duration_str, thumb_src):
     return item
 
 def get_clips(soup, page):
-    pages = soup.find('div', 'pagination')
+    pages = soup.find('ol', 'pagination')
     
-    if not pages.find('li', 'next disabled'):
+    if not pages.find('li', 'pagination__next pagination--disabled'):
         next_page = str(page + 1)
         item = {'label': u"{0} ({1}) >>".format(plugin.get_string(30001), next_page),
                 'path': plugin.url_for('clips', page=next_page)
@@ -89,12 +87,12 @@ def get_clips(soup, page):
                 }
         yield item
         
-    for li in soup('li', content=CLIP_PID_RE):
-        pid = CLIP_PID_RE.search(li['content']).group(1)
-        title = li.find('span', {'property': 'dc:title'}).string
-        duration_str = li.find('span', 'duration').string.split(" ")[1]
-        thumb_src = li.find('span', 'depiction').img['src']
-        
+    for clip in soup('div', 'programme--clip'):
+        pid = clip['data-pid']
+        title = clip.find('span', 'programme__title').text.strip()
+        duration_str = clip.find('p', 'programme__service').string.split(" ")[1]
+        thumb_src = clip.find('div', 'programme__img').meta['content']
+
         yield clip_item(pid, title, duration_str, thumb_src)
         
 def get_podcasts():
