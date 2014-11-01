@@ -26,7 +26,7 @@ import time
 
 from xbmcswift2 import Plugin
 from bs4 import BeautifulSoup
-import requests2
+import requests
 
 CLIP_HOST = "http://bbc.co.uk"
 CLIP_URL_FMT = CLIP_HOST + "/programmes/b00lvdrj/clips/?page={0}"
@@ -49,7 +49,7 @@ PODCAST_THUMB = "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg"
 plugin = Plugin()
 
 def get_soup(url):
-    response = requests2.get(url)
+    response = requests.get(url)
     return BeautifulSoup(response.text)
         
 def clip_item(pid, title, duration_str, thumb_src):
@@ -155,11 +155,11 @@ def clips(page='1'):
 
 @plugin.route('/clip/<pid>')
 def play_clip(pid):
-    xml = requests2.get(CLIP_PLAYLIST_XML_FMT.format(pid)).text
+    xml = requests.get(CLIP_PLAYLIST_XML_FMT.format(pid)).text
     programme = BeautifulSoup(xml, 'html.parser').find('item', kind='programme')
     vpid = programme['identifier']
     
-    xml = requests2.get(CLIP_XML_FMT.format(vpid)).text
+    xml = requests.get(CLIP_XML_FMT.format(vpid)).text
     media = BeautifulSoup(xml, 'html.parser').find('media', service='iplayer_streaming_h264_flv_high')
     connection = media.find(supplier='akamai')
 
