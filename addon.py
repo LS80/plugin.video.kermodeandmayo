@@ -154,11 +154,14 @@ def clips(page='1'):
 @plugin.route('/clip/<pid>')
 def play_clip(pid):
     xml = requests.get(CLIP_PLAYLIST_XML_FMT.format(pid)).text
-    programme = BeautifulSoup(xml, 'html.parser').find('item', kind='programme')
+    programme = BeautifulSoup(xml, 'html.parser').item
     vpid = programme['identifier']
     
+    def select_stream(service):
+        return service in ('ibroadcast_audio_pc', 'iplayer_streaming_h264_flv_high')
+
     xml = requests.get(CLIP_XML_FMT.format(vpid)).text
-    media = BeautifulSoup(xml, 'html.parser').find('media', service='iplayer_streaming_h264_flv_high')
+    media = BeautifulSoup(xml, 'html.parser').find('media', service=select_stream)
     connection = media.find(supplier='akamai')
 
     auth = connection['authstring']
