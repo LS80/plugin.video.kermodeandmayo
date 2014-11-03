@@ -38,7 +38,7 @@ CLIP_THUMB_HEIGHT = 360
 CLIP_PLAYLIST_XML_FMT = CLIP_HOST + "/iplayer/playlist/{0}"
 CLIP_XML_FMT = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/{0}"
 
-SWF_URL = "http://emp.bbci.co.uk/emp/releases/smp-flash/revisions/1.8.12/1.8.12_smp.swf"
+SWF_URL = "http://emp.bbci.co.uk/emp/SMPf/1.9.39/StandardMediaPlayerChromelessFlash.swf"
 
 PODCAST_XML = "http://downloads.bbc.co.uk/podcasts/fivelive/kermode/rss.xml"
 PODCAST_THUMB = "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg"
