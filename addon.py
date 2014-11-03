@@ -23,10 +23,14 @@ import re
 from urlparse import urlparse, urlunparse, urljoin
 from datetime import date, timedelta
 import time
+from functools import partial
 
 from xbmcswift2 import Plugin
 from bs4 import BeautifulSoup
 import requests
+
+from resources.lib import youtube
+
 
 CLIP_HOST = "http://bbc.co.uk"
 CLIP_URL_FMT = CLIP_HOST + "/programmes/b00lvdrj/clips/?page={0}"
@@ -67,8 +71,12 @@ def clip_item(pid, title, duration_str, thumb_src):
             'stream_info': {'video': {'duration': duration.seconds}
                             }
             }
-        
+
     return item
+
+def add_item_info(item, title, item_date):
+    item['info'] = {'title': title,
+                    'date': item_date.strftime("%d.%m.%Y")}
 
 def get_clips(soup, page):
     pages = soup.find('ol', 'pagination')
@@ -122,12 +130,44 @@ def get_podcasts():
 
         yield item
 
+def get_youtube_playlists():
+    for playlist_id, title, thumbnail, published_at in youtube.get_playlists():
+        item = {'label': title,
+                'thumbnail': thumbnail,
+                'path': plugin.url_for('show_youtube_list', playlist=playlist_id)}
+
+        add_item_info(item, title, published_at)
+
+        yield item
+
+def get_youtube_video_items(generator):
+    for video_id, title, thumbnail, published_at in generator():
+        item = {'label': title,
+                'thumbnail': thumbnail,
+                'path': "plugin://plugin.video.youtube/?action=play_video&videoid={0}".format(video_id),
+                'is_playable': True}
+
+        add_item_info(item, title, published_at)
+
+        yield item
+
 @plugin.route('/')
 def index():    
     return [{'label': plugin.get_string(30003),
              'path': plugin.url_for('podcasts')},
             {'label': plugin.get_string(30004),
-             'path': plugin.url_for('clips', page='1')}]
+             'path': plugin.url_for('clips', page='1')},
+            {'label': "Kermode Uncut",
+#             'path': plugin.url_for('show_youtube_list', playlist="PLwSLy9KPuWVVNS5N7WVzIAveGWBIbfgZF")}]
+             'path': plugin.url_for('youtube_search_result', query="Kermode Uncut: ")},
+            {'label': plugin.get_string(30005),
+             'path': plugin.url_for('show_youtube_list', playlist='latest')},
+            {'label': plugin.get_string(30006),
+             'path': plugin.url_for('show_youtube_list', playlist='popular')},
+            {'label': plugin.get_string(30007),
+             'path': plugin.url_for('youtube_playlists')},
+            {'label': plugin.get_string(30008),
+             'path': plugin.url_for('youtube_search')},]
 
 @plugin.route('/podcasts')
 def podcasts():
@@ -172,6 +212,36 @@ def play_clip(pid):
                                                                               auth,
                                                                               SWF_URL)
     return plugin.set_resolved_url(video_url)
+
+@plugin.route('/youtube/playlists')
+def youtube_playlists():
+    return plugin.finish(get_youtube_playlists(),
+                         sort_methods=['unsorted', 'date', 'title'])
+
+@plugin.route('/youtube/playlist/<playlist>')
+def show_youtube_list(playlist="latest"):
+    if playlist == "latest":
+        generator = youtube.get_latest
+    elif playlist == "popular":
+        generator = youtube.get_popular
+    else:
+        generator = partial(youtube.get_playlist_items, playlist)
+
+    return plugin.finish(get_youtube_video_items(generator),
+                         sort_methods=['unsorted', 'date', 'title'])
+
+@plugin.route('/youtube/search')
+def youtube_search():
+    query = plugin.keyboard(heading="Search")
+    if query:
+        url = plugin.url_for('youtube_search_result', query=query)
+        plugin.redirect(url)
+
+@plugin.route('/youtube/search/<query>')
+def youtube_search_result(query):
+    generator = partial(youtube.get_search_results, query)
+    return plugin.finish(get_youtube_video_items(generator),
+                         sort_methods=['unsorted', 'date', 'title'])
 
 
 if __name__ == '__main__':
