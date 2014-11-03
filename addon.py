@@ -152,21 +152,33 @@ def get_youtube_video_items(generator):
         yield item
 
 @plugin.route('/')
-def index():    
+def index():
+    try:
+        youtube_icon = Plugin(addon_id="plugin.video.youtube").addon.getAddonInfo('icon')
+    except:
+        youtube_icon = None
+
     return [{'label': plugin.get_string(30003),
+             'thumbnail': "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg",
              'path': plugin.url_for('podcasts')},
             {'label': plugin.get_string(30004),
+             'thumbnail': "http://ichef.bbci.co.uk/images/ic/512x288/p01lysw6.jpg",
              'path': plugin.url_for('clips', page='1')},
             {'label': "Kermode Uncut",
 #             'path': plugin.url_for('show_youtube_list', playlist="PLwSLy9KPuWVVNS5N7WVzIAveGWBIbfgZF")}]
+             'thumbnail': "http://static.bbc.co.uk/programmeimages/512xn/images/p012j25p.jpg",
              'path': plugin.url_for('youtube_search_result', query="Kermode Uncut: ")},
             {'label': plugin.get_string(30005),
+             'thumbnail': youtube_icon,
              'path': plugin.url_for('show_youtube_list', playlist='latest')},
             {'label': plugin.get_string(30006),
+             'thumbnail': youtube_icon,
              'path': plugin.url_for('show_youtube_list', playlist='popular')},
             {'label': plugin.get_string(30007),
+             'thumbnail': youtube_icon,
              'path': plugin.url_for('youtube_playlists')},
             {'label': plugin.get_string(30008),
+             'thumbnail': youtube_icon,
              'path': plugin.url_for('youtube_search')},]
 
 @plugin.route('/podcasts')
