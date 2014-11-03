@@ -48,7 +48,7 @@ plugin = Plugin()
 
 def get_soup(url):
     response = requests.get(url)
-    return BeautifulSoup(response.text)
+    return BeautifulSoup(response.text, 'html.parser')
         
 def clip_item(pid, title, duration_str, thumb_src):
     thumb_url = CLIP_THUMB_SIZE_RE.sub("/{0}x{1}/".format(CLIP_THUMB_WIDTH,
