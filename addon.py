@@ -24,8 +24,9 @@ from urlparse import urlparse, urlunparse, urljoin
 from datetime import date, timedelta
 import time
 from functools import partial
+import json
 
-from xbmcswift2 import Plugin
+from xbmcswift2 import Plugin, xbmc
 from bs4 import BeautifulSoup
 import requests
 
@@ -150,6 +151,36 @@ def get_youtube_video_items(generator):
         add_item_info(item, title, published_at)
 
         yield item
+        
+def has_movie_library():
+    request = ('{"jsonrpc": "2.0", '
+               '"method": "VideoLibrary.GetMovies", '
+               '"id": "movies"}')
+    
+    response = json.loads(xbmc.executeJSONRPC(request))
+    
+    return response['result']['limits']['total'] > 0
+
+def get_library_searches():
+    request = ('{"jsonrpc": "2.0", '
+               '"method": "VideoLibrary.GetMovies", '
+               '"params": {"sort": {"order": "ascending", "method": "label", "ignorearticle": true}, '
+               '           "properties" : ["thumbnail"]},'
+               '"id": "movies"}')
+
+    response = json.loads(xbmc.executeJSONRPC(request))
+
+    result = response['result']
+    if 'movies' in result:
+        for movie in result['movies']:
+            name = movie['label'].encode('utf-8')
+            item = {'label': name,
+                    'thumbnail': movie['thumbnail'],
+                    'path': plugin.url_for('youtube_search_result', query=name)}
+            yield item
+
+
+###########################################################################################
 
 @plugin.route('/')
 def index():
@@ -158,28 +189,35 @@ def index():
     except:
         youtube_icon = None
 
-    return [{'label': plugin.get_string(30003),
-             'thumbnail': "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg",
-             'path': plugin.url_for('podcasts')},
-            {'label': plugin.get_string(30004),
-             'thumbnail': "http://ichef.bbci.co.uk/images/ic/512x288/p01lysw6.jpg",
-             'path': plugin.url_for('clips', page='1')},
-            {'label': "Kermode Uncut",
+    items = [{'label': plugin.get_string(30003),
+              'thumbnail': "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg",
+              'path': plugin.url_for('podcasts')},
+             {'label': plugin.get_string(30004),
+              'thumbnail': "http://ichef.bbci.co.uk/images/ic/512x288/p01lysw6.jpg",
+              'path': plugin.url_for('clips', page='1')},
+             {'label': "Kermode Uncut",
 #             'path': plugin.url_for('show_youtube_list', playlist="PLwSLy9KPuWVVNS5N7WVzIAveGWBIbfgZF")}]
-             'thumbnail': "http://static.bbc.co.uk/programmeimages/512xn/images/p012j25p.jpg",
-             'path': plugin.url_for('youtube_search_result', query="Kermode Uncut: ")},
-            {'label': plugin.get_string(30005),
-             'thumbnail': youtube_icon,
-             'path': plugin.url_for('show_youtube_list', playlist='latest')},
-            {'label': plugin.get_string(30006),
-             'thumbnail': youtube_icon,
-             'path': plugin.url_for('show_youtube_list', playlist='popular')},
-            {'label': plugin.get_string(30007),
-             'thumbnail': youtube_icon,
-             'path': plugin.url_for('youtube_playlists')},
-            {'label': plugin.get_string(30008),
-             'thumbnail': youtube_icon,
-             'path': plugin.url_for('youtube_search')},]
+              'thumbnail': "http://static.bbc.co.uk/programmeimages/512xn/images/p012j25p.jpg",
+              'path': plugin.url_for('youtube_search_result', query="Kermode Uncut: ")},
+             {'label': plugin.get_string(30005),
+              'thumbnail': youtube_icon,
+              'path': plugin.url_for('show_youtube_list', playlist='latest')},
+             {'label': plugin.get_string(30006),
+              'thumbnail': youtube_icon,
+              'path': plugin.url_for('show_youtube_list', playlist='popular')},
+             {'label': plugin.get_string(30007),
+              'thumbnail': youtube_icon,
+              'path': plugin.url_for('youtube_playlists')},
+             {'label': plugin.get_string(30008),
+              'thumbnail': youtube_icon,
+              'path': plugin.url_for('youtube_search')}]
+    
+    if has_movie_library():
+        items.append({'label': plugin.get_string(30009),
+                      'thumbnail': youtube_icon,
+                      'path': plugin.url_for('youtube_search_library')})
+        
+    return items
 
 @plugin.route('/podcasts')
 def podcasts():
@@ -248,6 +286,10 @@ def youtube_search():
     if query:
         url = plugin.url_for('youtube_search_result', query=query)
         plugin.redirect(url)
+
+@plugin.route('/youtube/search-library')
+def youtube_search_library():
+    return get_library_searches()
 
 @plugin.route('/youtube/search/<query>')
 def youtube_search_result(query):
