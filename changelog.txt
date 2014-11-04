@@ -1,3 +1,6 @@
+0.3.0
+ - Added a YouTube search based on the movie library.
+
 0.2.1
  - Fixed the broken 0.2.0 release
 
