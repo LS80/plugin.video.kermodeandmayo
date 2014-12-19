@@ -159,10 +159,9 @@ def has_movie_library():
     
     try:
         response = json.loads(xbmc.executeJSONRPC(request))
+        return response['result']['limits']['total'] > 0
     except:
         return False
-    else:
-        return response['result']['limits']['total'] > 0
 
 def get_library_searches():
     request = ('{"jsonrpc": "2.0", '
