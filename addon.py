@@ -40,10 +40,8 @@ CLIP_THUMB_SIZE_RE = re.compile("/\d{3,}x\d{3,}/")
 CLIP_THUMB_WIDTH = 640
 CLIP_THUMB_HEIGHT = 360
 
-CLIP_PLAYLIST_XML_FMT = CLIP_HOST + "/iplayer/playlist/{0}"
+CLIP_JSON_FMT = CLIP_HOST + "/programmes/{0}.json"
 CLIP_XML_FMT = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/pc/vpid/{0}"
-
-SWF_URL = "http://emp.bbci.co.uk/emp/SMPf/1.9.39/StandardMediaPlayerChromelessFlash.swf"
 
 PODCAST_XML = "http://downloads.bbc.co.uk/podcasts/fivelive/kermode/rss.xml"
 PODCAST_THUMB = "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg"
@@ -181,6 +179,9 @@ def get_library_searches():
                     'path': plugin.url_for('youtube_search_result', query=name)}
             yield item
 
+def get_version_pid(pid):
+    return requests.get(CLIP_JSON_FMT.format(pid)).json()['programme']['versions'][0]['pid']
+
 
 ###########################################################################################
 
@@ -245,24 +246,16 @@ def clips(page='1'):
 
 @plugin.route('/clip/<pid>')
 def play_clip(pid):
-    xml = requests.get(CLIP_PLAYLIST_XML_FMT.format(pid)).text
-    programme = BeautifulSoup(xml, 'html.parser').item
-    vpid = programme['identifier']
-    
-    def select_stream(service):
-        return service in ('ibroadcast_audio_pc', 'iplayer_streaming_h264_flv_high')
+    vpid = get_version_pid(pid)
 
     xml = requests.get(CLIP_XML_FMT.format(vpid)).text
-    media = BeautifulSoup(xml, 'html.parser').find('media', service=select_stream)
+    media = BeautifulSoup(xml, 'html.parser').find('media', service='iplayer_streaming_h264_flv_high')
     connection = media.find(supplier='akamai')
-
     auth = connection['authstring']
-
     url = urlunparse((connection['protocol'], connection['server'], 'ondemand', None, auth, None))
-    video_url = "{0} playpath={1}?{2} swfurl={3} swfvfy=1 timeout=180".format(url,
-                                                                              connection['identifier'],
-                                                                              auth,
-                                                                              SWF_URL)
+    video_url = "{url} playpath={path}?{auth}".format(url=url,
+                                                      path=connection['identifier'],
+                                                      auth=auth)
     return plugin.set_resolved_url(video_url)
 
 @plugin.route('/youtube/playlists')
