@@ -1,3 +1,6 @@
+0.3.2
+ - Fixed the video review clips
+
 0.3.1
  - Fixed a possible script error when checking for a movie library
 
