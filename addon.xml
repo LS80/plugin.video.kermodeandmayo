@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.kermodeandmayo" name="Kermode and Mayo's Film Review" version="0.3.2" provider-name="Leopold">
   <requires>
-    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="xbmc.python" version="2.23.0"/>
     <import addon="script.module.xbmcswift2" version="2.4.0" optional="false"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2" optional="false"/>
     <import addon="script.module.requests" version="2.3.0" optional="false"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video audio</provides>
+  </extension>
+  <extension point="kodi.context.item">
+    <menu id="kodi.core.main">
+      <item library="context.py">
+        <label>30010</label>
+        <visible>Container.Content(movies)</visible>
+      </item>
+    </menu>
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
