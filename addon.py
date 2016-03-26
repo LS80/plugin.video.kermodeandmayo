@@ -149,26 +149,26 @@ def get_youtube_video_items(generator):
         add_item_info(item, title, published_at)
 
         yield item
-        
+
 def has_movie_library():
-    request = ('{"jsonrpc": "2.0", '
-               '"method": "VideoLibrary.GetMovies", '
-               '"id": "movies"}')
-    
+    request = {"jsonrpc": "2.0",
+               "method": "VideoLibrary.GetMovies",
+               "id": "movies"}
+
     try:
-        response = json.loads(xbmc.executeJSONRPC(request))
+        response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
         return response['result']['limits']['total'] > 0
     except:
         return False
 
 def get_library_searches():
-    request = ('{"jsonrpc": "2.0", '
-               '"method": "VideoLibrary.GetMovies", '
-               '"params": {"sort": {"order": "ascending", "method": "label", "ignorearticle": true}, '
-               '           "properties" : ["thumbnail"]},'
-               '"id": "movies"}')
+    request = {"jsonrpc": "2.0",
+               "method": "VideoLibrary.GetMovies",
+               "params": {"sort": {"order": "ascending", "method": "label", "ignorearticle": True},
+                          "properties" : ["thumbnail"]},
+               "id": "movies"}
 
-    response = json.loads(xbmc.executeJSONRPC(request))
+    response = json.loads(xbmc.executeJSONRPC(json.dumps(request)))
 
     result = response['result']
     if 'movies' in result:
