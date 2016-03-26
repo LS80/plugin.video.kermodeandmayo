@@ -5,6 +5,7 @@
     <import addon="script.module.xbmcswift2" version="2.4.0" optional="false"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2" optional="false"/>
     <import addon="script.module.requests" version="2.3.0" optional="false"/>
+    <import addon="script.module.pyrollbar" version="0.11.2" optional="false"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video audio</provides>

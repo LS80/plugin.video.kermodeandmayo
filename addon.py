@@ -29,6 +29,7 @@ import json
 from xbmcswift2 import Plugin, xbmc
 from bs4 import BeautifulSoup
 import requests
+import rollbar
 
 from resources.lib import youtube
 
@@ -294,4 +295,9 @@ def youtube_search_result(query):
 
 
 if __name__ == '__main__':
-    plugin.run()
+    rollbar.init('0a87de9bd8434df2a691b99cf0da3d98')
+    try:
+        plugin.run()
+    except Exception:
+        rollbar.report_exc_info(extra_data={'url': plugin.request.url})
+        raise
