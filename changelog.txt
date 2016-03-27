@@ -1,3 +1,6 @@
+v0.5.1 (2016-03-27)
+ - Fix video clips for non-UK users
+
 v0.5.0 (2016-03-26)
  - Report errors to Rollbar
 
