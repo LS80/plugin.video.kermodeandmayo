@@ -1,3 +1,6 @@
+v0.5.2 (2016-03-27)
+ - Fix a possible context menu search error
+
 v0.5.1 (2016-03-27)
  - Fix video clips for non-UK users
 
