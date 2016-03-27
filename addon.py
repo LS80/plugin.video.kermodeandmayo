@@ -250,7 +250,9 @@ def play_clip(pid):
     vpid = get_version_pid(pid)
 
     xml = requests.get(CLIP_XML_FMT.format(vpid)).text
-    media = BeautifulSoup(xml, 'html.parser').find('media', service='iplayer_streaming_h264_flv_high')
+    plugin.log.debug(xml)
+    media = BeautifulSoup(xml, 'html.parser').find(
+        'media', service=re.compile('iplayer_streaming_h264_flv_high'))
     connection = media.find(supplier='akamai')
     auth = connection['authstring']
     url = urlunparse((connection['protocol'], connection['server'],
