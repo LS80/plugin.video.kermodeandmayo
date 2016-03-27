@@ -53,11 +53,11 @@ plugin = Plugin()
 def get_soup(url):
     response = requests.get(url)
     return BeautifulSoup(response.text, 'html.parser')
-        
+
 def clip_item(pid, title, duration_str, thumb_src):
     thumb_url = CLIP_THUMB_SIZE_RE.sub("/{0}x{1}/".format(CLIP_THUMB_WIDTH,
                                                           CLIP_THUMB_HEIGHT), thumb_src)
-    
+
     minutes, seconds = duration_str.split(':')
     duration = timedelta(minutes=int(minutes), seconds=int(seconds))
 
@@ -80,7 +80,7 @@ def add_item_info(item, title, item_date):
 
 def get_clips(soup, page):
     pages = soup.find('ol', 'pagination')
-    
+
     if not pages.find('li', 'pagination__next pagination--disabled'):
         next_page = str(page + 1)
         item = {'label': u"{0} ({1}) >>".format(plugin.get_string(30001), next_page),
@@ -94,7 +94,7 @@ def get_clips(soup, page):
                 'path': plugin.url_for('clips', page=previous_page)
                 }
         yield item
-        
+
     for clip in soup('div', 'programme--clip'):
         pid = clip['data-pid']
         title = clip.find('span', 'programme__title').text.strip()
@@ -102,16 +102,16 @@ def get_clips(soup, page):
         thumb_src = clip.find('div', 'programme__img').meta['content']
 
         yield clip_item(pid, title, duration_str, thumb_src)
-        
+
 def get_podcasts():
     soup = get_soup(PODCAST_XML)
     for podcast in soup('item'):
         title = podcast.title.string
         date_str = podcast.pubdate.string[:16]
         air_date = date(*(time.strptime(date_str, "%a, %d %b %Y")[:3]))
-        
+
         media = podcast.find('media:content')
-        
+
         item = {'label': title,
                 'thumbnail': PODCAST_THUMB,
                 'is_playable': True,
@@ -215,12 +215,12 @@ def index():
              {'label': plugin.get_string(30008),
               'thumbnail': youtube_icon,
               'path': plugin.url_for('youtube_search')}]
-    
+
     if has_movie_library():
         items.append({'label': plugin.get_string(30009),
                       'thumbnail': youtube_icon,
                       'path': plugin.url_for('youtube_search_library')})
-        
+
     return items
 
 @plugin.route('/podcasts')
@@ -234,8 +234,8 @@ def podcasts():
 @plugin.route('/clips/page/<page>')
 def clips(page='1'):
     soup = get_soup(CLIP_URL_FMT.format(page))
-    
-    page = int(page)    
+
+    page = int(page)
     if page > 1:
         update_listing = True
     else:
@@ -253,7 +253,8 @@ def play_clip(pid):
     media = BeautifulSoup(xml, 'html.parser').find('media', service='iplayer_streaming_h264_flv_high')
     connection = media.find(supplier='akamai')
     auth = connection['authstring']
-    url = urlunparse((connection['protocol'], connection['server'], 'ondemand', None, auth, None))
+    url = urlunparse((connection['protocol'], connection['server'],
+                      'ondemand', None, auth, None))
     video_url = "{url} playpath={path}?{auth}".format(url=url,
                                                       path=connection['identifier'],
                                                       auth=auth)
