@@ -26,7 +26,7 @@ import time
 from functools import partial
 import json
 
-from xbmcswift2 import Plugin, xbmc
+from kodiswift import Plugin, xbmc
 from bs4 import BeautifulSoup
 import requests
 import rollbar
