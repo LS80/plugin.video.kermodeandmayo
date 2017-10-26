@@ -18,9 +18,7 @@
 #
 ##########################################################################
 
-import os
 import re
-from urlparse import urlparse, urlunparse, urljoin
 from datetime import date, timedelta
 import time
 from functools import partial
