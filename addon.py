@@ -32,8 +32,8 @@ import rollbar
 from resources.lib import youtube
 
 
-CLIP_HOST = "http://bbc.co.uk"
-CLIP_URL_FMT = CLIP_HOST + "/programmes/b00lvdrj/clips/?page={0}"
+CLIP_HOST = "https://bbc.co.uk"
+CLIP_URL_FMT = CLIP_HOST + "/programmes/b00lvdrj/clips?page={0}"
 
 CLIP_THUMB_WIDTH = 640
 
