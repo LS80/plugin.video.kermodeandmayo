@@ -40,11 +40,13 @@ CLIP_THUMB_WIDTH = 640
 CLIP_JSON_FMT = CLIP_HOST + "/programmes/{0}.json"
 CLIP_XML_FMT = "http://open.live.bbc.co.uk/mediaselector/5/select/version/2.0/mediaset/iptv-all/vpid/{0}"
 
-PODCAST_XML = "http://downloads.bbc.co.uk/podcasts/fivelive/kermode/rss.xml"
-PODCAST_THUMB = "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg"
+PODCAST_XML = "https://podcasts.files.bbci.co.uk/b00lvdrj.rss"
+PODCAST_THUMB = ("https://is3-ssl.mzstatic.com/image/thumb/Podcasts123/v4/91/f1/fd/"
+                 "91f1fdf7-0eb3-a85e-6597-e3419291e6c5/mza_7355701871354807873.jpg/512x0w.jpg")
 
 
 plugin = Plugin()
+
 
 def get_soup(url):
     response = requests.get(url)
@@ -191,7 +193,7 @@ def index():
         youtube_icon = None
 
     items = [{'label': plugin.get_string(30003),
-              'thumbnail': "http://ichef.bbci.co.uk/podcasts/artwork/478/kermode.jpg",
+              'thumbnail': PODCAST_THUMB,
               'path': plugin.url_for('podcasts')},
              {'label': plugin.get_string(30004),
               'thumbnail': "http://ichef.bbci.co.uk/images/ic/512x288/p01lysw6.jpg",
