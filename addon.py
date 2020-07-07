@@ -198,10 +198,6 @@ def index():
              {'label': plugin.get_string(30004),
               'thumbnail': "http://ichef.bbci.co.uk/images/ic/512x288/p01lysw6.jpg",
               'path': plugin.url_for('clips', page='1')},
-             {'label': "Kermode Uncut",
-#             'path': plugin.url_for('show_youtube_list', playlist="PLwSLy9KPuWVVNS5N7WVzIAveGWBIbfgZF")}]
-              'thumbnail': "http://static.bbc.co.uk/programmeimages/512xn/images/p012j25p.jpg",
-              'path': plugin.url_for('youtube_search_result', query="Kermode Uncut: ")},
              {'label': plugin.get_string(30005),
               'thumbnail': youtube_icon,
               'path': plugin.url_for('show_youtube_list', playlist='latest')},
